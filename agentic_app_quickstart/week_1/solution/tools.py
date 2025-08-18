@@ -67,26 +67,37 @@ LAST_SEQ = 0
 def run_matplotlib_code(code: str) -> dict | str:
     """
     Execute matplotlib code using df_* with fig/ax available.
-    Return on success: {"path": "<server-filepath>", "mime_type":"image/png", "alt_text":"..."}
-    Return on error:   "Error: <message>"
+    Returns:
+      - On success: {"path": "<server-filepath>", "mime_type":"image/png", "alt_text":"..."}
+      - On error:   "Error: <message>"
     """
     global LAST_FILE, LAST_SEQ
-    plt.close("all")
-    fig, ax = plt.subplots()
+    plt.close("all")  # clear state before execution
     try:
+        # Prepare the execution environment
         local_vars = {
             "df_sales": df_sales.copy(),
             "df_employee": df_employee.copy(),
             "df_weather": df_weather.copy(),
-            "pd": pd, "plt": plt, "fig": fig, "ax": ax
+            "pd": pd,
+            "plt": plt
         }
+        # Provide fig/ax if the user wants them
+        fig, ax = plt.subplots()
+        local_vars.update({"fig": fig, "ax": ax})
+
         print("[DEBUG] Executing matplotlib code:\n", code)
         exec(code, {}, local_vars)
 
-        # write to a temp file (Gradio expects a server filepath)
+        # After exec, try to grab the last active figure
+        fig_to_save = plt.gcf()
+        if fig_to_save is None:
+            return "Error: No figure was generated."
+
+        # Save to a temp file
         tmpdir = pathlib.Path(tempfile.gettempdir())
         fpath = tmpdir / f"plot-{uuid.uuid4().hex}.png"
-        fig.savefig(fpath, format="png", bbox_inches="tight", dpi=144)
+        fig_to_save.savefig(fpath, format="png", bbox_inches="tight", dpi=144)
 
         block = {
             "path": str(fpath),
@@ -103,4 +114,4 @@ def run_matplotlib_code(code: str) -> dict | str:
         LAST_FILE = None
         return f"Error: {e}"
     finally:
-        plt.close(fig)
+        plt.close("all")

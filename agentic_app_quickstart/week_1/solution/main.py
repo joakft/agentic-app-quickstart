@@ -1,19 +1,16 @@
 from agents import Runner, set_tracing_disabled, SQLiteSession
-from _agents import analyst
+from _agents import analyst, customer_facing
 import gradio as gr
 import tools 
 import base64
 _last_seen_seq = -1  # module-level
 
-
 set_tracing_disabled(True)
 
 session = SQLiteSession("user_123", "conversations.db")
 
-
-
 async def ask_agent(user_message: str):
-    res = await Runner.run(analyst, user_message, session=session)  # ensure this is the agent with tools
+    res = await Runner.run(customer_facing, user_message, session=session)  # ensure this is the agent with tools
     return getattr(res, "final_output", res)
 
 async def respond(message, history):
