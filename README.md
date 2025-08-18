@@ -2,7 +2,7 @@
 
 This repository contains my **solutions to the exercises** from the course _Mastering AI Agents and MCP: Build Enterprise Agentic Apps_.
 
-It was originally **forked** from the instructor's repository: [teacher-repo-link](https://github.com/teacher-repo-link).  
+It was originally **forked** from the instructor's repository: [teacher-repo-link](https://github.com/weet-ai/agentic-app-quickstart.git).  
 👉 If you're looking for instructions on how to run or configure the environment, **refer to the original repository**.
 
 ## 📁 My Projects
